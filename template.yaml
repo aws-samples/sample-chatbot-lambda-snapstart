@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  snapstart-slm-demo
+
+Resources:
+  LlamaCppLayerX86:
+    Type: AWS::Serverless::LayerVersion
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      LayerName: llama-cpp-layer
+      Description: Layer containing llama-cpp-python and dependencies
+      ContentUri: layers/llama-cpp/
+      CompatibleRuntimes:
+        - python3.12
+      CompatibleArchitectures:
+        - x86_64
+
+  FastAPIFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: app/
+      Handler: run.sh
+      Runtime: python3.12
+      Timeout: 600
+      MemorySize: 10240
+      Tracing: Active
+      Architectures:
+        - x86_64
+      AutoPublishAlias: live
+      SnapStart:
+        ApplyOn: PublishedVersions
+      Policies:
+        - S3ReadPolicy:
+            BucketName: genai-models-pdx
+      Environment:
+        Variables:
+          MODEL_BUCKET: genai-models-pdx
+          MODEL_KEY: Qwen2.5-1.5B-Instruct-Q4_K_M.gguf
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
+          AWS_LWA_INVOKE_MODE: RESPONSE_STREAM
+          AWS_LWA_READINESS_CHECK_PATH: /healthz
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: RESPONSE_STREAM
+      Layers:
+        - !Ref LlamaCppLayerX86
+        - !Sub arn:aws:lambda:${AWS::Region}:753240598075:layer:LambdaAdapterLayerX86:23
+        
+Outputs:
+  FastAPIFunctionUrl:
+    Description: "Function URL for FastAPI function"
+    Value: !GetAtt FastAPIFunctionUrl.FunctionUrl
