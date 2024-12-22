@@ -3,6 +3,11 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   snapstart-slm-demo
 
+Parameters:
+  ModelBucket:
+    Type: String
+    Description: S3 bucket containing the model files
+
 Resources:
   LlamaCppLayer:
     Type: AWS::Serverless::LayerVersion
@@ -33,10 +38,10 @@ Resources:
         ApplyOn: PublishedVersions
       Policies:
         - S3ReadPolicy:
-            BucketName: genai-models-pdx
+            BucketName: !Ref ModelBucket
       Environment:
         Variables:
-          MODEL_BUCKET: genai-models-pdx
+          MODEL_BUCKET: !Ref ModelBucket
           MODEL_KEY: Qwen2.5-1.5B-Instruct-Q4_K_M.gguf
           AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
           AWS_LWA_INVOKE_MODE: RESPONSE_STREAM
