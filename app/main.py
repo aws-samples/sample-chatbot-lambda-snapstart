@@ -72,7 +72,7 @@ def download_model_to_memfd(bucket, key, chunk_size=100*1024*1024):  # 100MB chu
     
     # Download parts concurrently
     download_func = partial(download_part, s3, bucket, key, fd)
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         executor.map(download_func, parts)
     
     fd_path = f"/proc/self/fd/{fd}"
@@ -104,7 +104,7 @@ def init_model():
         logger.info("Initializing LLM...")
         llm = llama_cpp.Llama(
             model_path=fd_path,
-            n_ctx=8192,
+            n_ctx=8*1024,
             n_threads=multiprocessing.cpu_count(),
             flash_attn=True,
             verbose=True,

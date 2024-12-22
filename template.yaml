@@ -4,7 +4,7 @@ Description: >
   snapstart-slm-demo
 
 Resources:
-  LlamaCppLayerX86:
+  LlamaCppLayer:
     Type: AWS::Serverless::LayerVersion
     Metadata:
       BuildMethod: makefile
@@ -45,7 +45,7 @@ Resources:
         AuthType: NONE
         InvokeMode: RESPONSE_STREAM
       Layers:
-        - !Ref LlamaCppLayerX86
+        - !Ref LlamaCppLayer
         - !Sub arn:aws:lambda:${AWS::Region}:753240598075:layer:LambdaAdapterLayerX86:23
         
 Outputs:
