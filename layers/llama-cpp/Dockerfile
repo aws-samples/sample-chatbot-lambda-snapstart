@@ -19,7 +19,7 @@ RUN git clone https://github.com/abetlen/llama-cpp-python.git && \
 
 # Build the wheel
 WORKDIR /build/llama-cpp-python
-ENV CMAKE_ARGS="-DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS"
+ENV CMAKE_ARGS="-DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS -DLLAMA_AVX2=ON -DLLAMA_AVX512=OFF"
 ENV LLAMA_BLAS=1
 ENV LLAMA_OPENBLAS=1
 
