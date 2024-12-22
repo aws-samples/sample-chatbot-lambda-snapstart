@@ -1,4 +1,4 @@
-# serverless-slm-demo
+# serverless-llm-demo
 
 This project demonstrates how to build a serverless LLM inference API using AWS Lambda with SnapStart, FastAPI, and llama-cpp-python. It includes the following components:
 
