@@ -5,6 +5,7 @@ import boto3
 import llama_cpp
 import logging
 import multiprocessing
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from fastapi import FastAPI
@@ -150,6 +151,9 @@ class ChatCompletionRequest(BaseModel):
 
 @app.post("/v1/chat/completions")
 async def handle_chat_completion(request: ChatCompletionRequest):
+    completion_id = f"chatcmpl-{str(uuid.uuid4())}"
+    created_timestamp = int(datetime.now().timestamp())
+
     # Convert messages to prompt format using list comprehension and join
     prompt_parts = [
         f"<|im_start|>{msg.role}\n{msg.content}<|im_end|>\n"
@@ -172,9 +176,9 @@ async def handle_chat_completion(request: ChatCompletionRequest):
             if completion['finish_reason'] is None:
                 # Format response in OpenAI streaming format
                 chunk_data = {
-                    "id": "chatcmpl-" + datetime.now().strftime("%Y%m%d%H%M%S"),
+                    "id": completion_id,
                     "object": "chat.completion.chunk",
-                    "created": int(datetime.now().timestamp()),
+                    "created": created_timestamp,
                     "model": request.model,
                     "choices": [{
                         "delta": {"content": completion['text']},
@@ -186,9 +190,9 @@ async def handle_chat_completion(request: ChatCompletionRequest):
             else:
                 # Send final chunk with finish_reason
                 final_chunk = {
-                    "id": "chatcmpl-" + datetime.now().strftime("%Y%m%d%H%M%S"),
+                    "id": completion_id,
                     "object": "chat.completion.chunk",
-                    "created": int(datetime.now().timestamp()),
+                    "created": created_timestamp,
                     "model": request.model,
                     "choices": [{
                         "delta": {},
