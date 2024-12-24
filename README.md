@@ -58,6 +58,43 @@ During the guided deployment, you'll be prompted for:
 
 After deployment, SAM will output the Function URL for your API endpoint.
 
+## Using the Client
+
+The project includes a command-line chat client (`client.py`) that interacts with the deployed API:
+
+### Configuration
+
+1. Create a `.env` file in the project root:
+```bash
+CHAT_API_BASE=<your-lambda-function-url>  # e.g., https://xxxx.lambda-url.us-east-1.on.aws
+```
+
+Alternatively, you can provide the API base URL via command line:
+```bash
+python client.py --api-base https://xxxx.lambda-url.us-east-1.on.aws
+```
+
+### Features
+
+- Interactive chat interface with streaming responses
+- Command history navigation using ↑/↓ arrow keys
+- History persistence in `.chat_history` file
+- Special commands:
+  - `/quit` - Exit the chat
+  - `/new` - Start a new conversation
+
+### Usage
+
+1. Install dependencies:
+```bash
+pip install requests python-dotenv
+```
+
+2. Run the client:
+```bash
+python client.py
+```
+
 ## Architecture
 
 The application consists of:
