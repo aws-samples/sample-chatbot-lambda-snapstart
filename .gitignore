@@ -247,3 +247,4 @@ $RECYCLE.BIN/
 samconfig.toml
 output
 models/*.gguf
+.chat_history
