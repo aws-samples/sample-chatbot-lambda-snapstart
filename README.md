@@ -81,11 +81,11 @@ The application consists of:
 1. **Model Preparation**
    ```bash
    # Download the Qwen model
-   wget https://huggingface.co/bartowski/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/Qwen2.5-1.5B-Instruct-Q4_K_M.gguf
+   wget https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-1.5B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
    
    # Create and configure S3 bucket
    aws s3 mb s3://BUCKET_NAME
-   aws s3 cp Qwen2.5-1.5B-Instruct-Q4_K_M.gguf s3://BUCKET_NAME/
+   aws s3 cp DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf s3://BUCKET_NAME/
    ```
 
 2. **Application Deployment**
