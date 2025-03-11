@@ -4,7 +4,7 @@ This project demonstrates how to build a serverless LLM inference API using AWS 
 
 ## Architecture
 
-TBA
+![architecture](img/deepseek-on-lambda.png)
 
 The application consists of:
 - FastAPI application running on Lambda for inference requests
