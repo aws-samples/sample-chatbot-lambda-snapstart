@@ -46,6 +46,7 @@ Resources:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
           AWS_LWA_INVOKE_MODE: RESPONSE_STREAM
           AWS_LWA_READINESS_CHECK_PATH: /healthz
+          AWS_LAMBDA_LOG_LEVEL: debug
       FunctionUrlConfig:
         AuthType: AWS_IAM
         InvokeMode: RESPONSE_STREAM

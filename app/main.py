@@ -16,7 +16,6 @@ from datetime import datetime
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 # Global variables to persist across invocations
 llm = None  # The LLM instance that will be reused across requests
@@ -248,7 +247,7 @@ async def handle_chat_completion(request: ChatCompletionRequest):
         f"<|{msg.role}|>{msg.content}"
         for msg in request.messages
     ]
-    prompt_parts.append("<|Assistant|>")  # Add the assistant prefix for the response
+    prompt_parts.append("<|Assistant|>\n<think>\n")  # Add the assistant prefix for the response, and force thinking with '<think>' tag
     prompt = "".join(prompt_parts)
     
     # Generate completion with streaming enabled

@@ -25,7 +25,7 @@ class ThinkingIndicator:
         
     def start(self):
         """Start the thinking animation in a separate thread."""
-        print("\nAssistant: ", end='', flush=True)
+        print("\n", end='', flush=True)
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._animate)
         self._thread.daemon = True
@@ -37,8 +37,7 @@ class ThinkingIndicator:
             self._stop_event.set()
             self._thread.join()
             # Clear the thinking indicator
-            print("\r\033[K", end='')
-            print("Assistant: ", end='', flush=True)
+            print("\r\033[K", end='', flush=True)
             
     def _animate(self):
         """Animation loop for the thinking indicator."""
@@ -46,7 +45,7 @@ class ThinkingIndicator:
             for frame in ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]:
                 if self._stop_event.is_set():
                     break
-                print(f"\r\033[KThinking {frame}", end='', flush=True)
+                print(f"\r\033[K{frame} Thinking...", end='', flush=True)
                 time.sleep(0.1)
 
 class ChatClient:
@@ -90,9 +89,7 @@ class ChatClient:
     
     def new_conversation(self):
         """Start a new conversation by resetting the message history."""
-        self.messages = [
-            {"role": "system", "content": "You are a helpful assistant"}
-        ]
+        self.messages = []
     
     def _sign_request(self, url: str, method: str, body: Optional[Dict]) -> requests.PreparedRequest:
         """Sign an HTTP request with AWS SigV4 authentication.
@@ -161,11 +158,9 @@ class ChatClient:
             response = self.session.send(prepared_request, stream=True)
             response.raise_for_status()
             
-            # Stop thinking animation
-            self.thinking.stop()
-            
             # Process the streaming response
             assistant_message = ""
+            first_chunk = True
             for line in response.iter_lines():
                 if line:
                     line = line.decode('utf-8')
@@ -179,6 +174,13 @@ class ChatClient:
                                 choice = json_data['choices'][0]
                                 if 'delta' in choice and 'content' in choice['delta']:
                                     content = choice['delta']['content']
+                                    
+                                    # Stop thinking animation only when first content chunk arrives
+                                    if first_chunk:
+                                        self.thinking.stop()
+                                        print("<think>", flush=True)
+                                        first_chunk = False
+                                        
                                     print(content, end='', flush=True)
                                     assistant_message += content
                         except json.JSONDecodeError:
@@ -218,7 +220,7 @@ def get_api_base() -> str:
     parser.add_argument('--api-base', help='API base URL')
     parser.add_argument('--temperature', type=float, default=0.6,
                        help='Sampling temperature (0.0-1.0)')
-    parser.add_argument('--max-tokens', type=int, default=512,
+    parser.add_argument('--max-tokens', type=int, default=8192,
                        help='Maximum tokens to generate')
     args = parser.parse_args()
     
@@ -261,10 +263,16 @@ def main():
             readline.set_history_length(1000)
         except FileNotFoundError:
             pass
+            
+        # Define a simpler approach for handling the prompt
+        def get_input():
+            # Use a simple prompt without color to avoid readline issues
+            user_input = input("\n> ")
+            return user_input.strip()
         
         while True:
-            # Get user input with history support
-            user_input = input("\nYou: ").strip()
+            # Get user input with history support using our custom function
+            user_input = get_input()
             readline.write_history_file(histfile)
             
             # Handle commands
