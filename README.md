@@ -67,11 +67,11 @@ The application consists of:
   - No pre-provisioning or capacity planning required
 
 - **Cold Start Times**
-  - ~2-3 seconds with SnapStart
-  - ~50-65 seconds without SnapStart
+  - ~1-2 seconds with SnapStart
+  - ~20-30 seconds without SnapStart
 
 - **Memory Requirements**
-  - Minimum: 4GB Lambda memory for 1.5B 4 bit quant models
+  - Minimum: 2GB Lambda memory for 1.5B 4 bit quant models
   - Recommended: 10GB for better performance
 
 ## Security
@@ -119,7 +119,7 @@ The application consists of:
 
 ```bash
 # Install dependencies
-pip install requests python-dotenv
+pip install requests python-dotenv boto3
 
 # Configure API endpoint
 echo "CHAT_API_BASE=https://xxxx.lambda-url.us-east-1.on.aws" > .env
