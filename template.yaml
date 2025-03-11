@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  snapstart-slm-demo
+  snapstart-llm-demo
 
 Parameters:
   ModelBucket:
@@ -42,12 +42,12 @@ Resources:
       Environment:
         Variables:
           MODEL_BUCKET: !Ref ModelBucket
-          MODEL_KEY: Qwen2.5-1.5B-Instruct-Q4_K_M.gguf
+          MODEL_KEY: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
           AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
           AWS_LWA_INVOKE_MODE: RESPONSE_STREAM
           AWS_LWA_READINESS_CHECK_PATH: /healthz
       FunctionUrlConfig:
-        AuthType: NONE
+        AuthType: AWS_IAM
         InvokeMode: RESPONSE_STREAM
       Layers:
         - !Ref LlamaCppLayer

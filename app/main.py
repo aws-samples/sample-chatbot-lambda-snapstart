@@ -113,9 +113,10 @@ def init_model():
             verbose=True,
         )
         logger.info("LLM initialization complete")
-        system_prompt = "You are a knowledgable and helpful assistant"
+        
+        # prime the model
         user_question = "Which city is the capital of France?"
-        prompt = f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{user_question}<|im_end|>\n<|im_start|>assistant\n"
+        prompt = f"<|User|>{user_question}<|Assistant|>"
         
         llm.create_completion(
             prompt=prompt,
@@ -156,17 +157,17 @@ async def handle_chat_completion(request: ChatCompletionRequest):
 
     # Convert messages to prompt format using list comprehension and join
     prompt_parts = [
-        f"<|im_start|>{msg.role}\n{msg.content}<|im_end|>\n"
+        f"<|{msg.role}|>{msg.content}"
         for msg in request.messages
     ]
-    prompt_parts.append("<|im_start|>assistant\n")
+    prompt_parts.append("<|Assistant|>")
     prompt = "".join(prompt_parts)
     
     response = llm.create_completion(
         prompt=prompt,
         max_tokens=request.max_tokens,
         temperature=request.temperature,
-        stop=["<|im_end|>"],
+        stop=["<|user|>","<|assistant|>","<|User|>","<|Assistant|>", "</|assistant>"],
         stream=True
     )
     
