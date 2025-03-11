@@ -264,10 +264,10 @@ def main():
         except FileNotFoundError:
             pass
             
-        # Define a simpler approach for handling the prompt
+        # Define a function to handle the prompt with Unicode characters
         def get_input():
-            # Use a simple prompt without color to avoid readline issues
-            user_input = input("\n> ")
+            # Use Unicode characters for a distinctive prompt that works with readline
+            user_input = input("\n➤ ")  # Unicode right-pointing triangle
             return user_input.strip()
         
         while True:
