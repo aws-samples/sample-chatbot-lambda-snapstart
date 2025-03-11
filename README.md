@@ -149,8 +149,8 @@ python client.py --api-base https://xxxx.lambda-url.us-east-1.on.aws \
   - `/new` - Start a new conversation
 
 - **Configuration**
-  - `temperature` (0.0-1.0): Response randomness
-  - `max_tokens` (1-2048): Maximum response length
+  - `temperature` (0.0-2.0): Response randomness
+  - `max_tokens` (1-8192): Maximum response length
 
 ## Local Development
 
