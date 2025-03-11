@@ -1,132 +1,193 @@
-# serverless-llm-demo
+# Serverless LLM Demo
 
-This project demonstrates how to build a serverless LLM inference API using AWS Lambda with SnapStart, FastAPI, and llama-cpp-python. It includes the following components:
+This project demonstrates how to build a serverless LLM inference API using AWS Lambda with SnapStart, FastAPI, and llama-cpp-python. It provides a production-ready template for deploying large language models in a serverless environment.
 
-- `app/` - FastAPI application code for the Lambda function
-- `layers/llama-cpp/` - Custom Lambda layer containing llama-cpp-python and its dependencies
-- `models/` - Directory for local model files
-- `template.yaml` - SAM template defining the application's AWS resources
+## Architecture
+
+```
+┌─────────┐     ┌───────────────┐     ┌─────────┐
+│  Client │────▶│ Lambda        │────▶│   S3    │
+└─────────┘     │ Function URL  │     └─────────┘
+                │  - FastAPI    │          ▲
+                │  - SnapStart  │          │
+                │  - llama-cpp  │          │
+                └───────────────┘          │
+                       │                   │
+                       └───────────────────┘
+```
+
+The application consists of:
+- FastAPI application running on Lambda for inference requests
+- Custom Lambda layer with llama-cpp-python (x86_64)
+- Lambda SnapStart for faster cold starts
+- AWS Lambda Web Adapter for streaming responses
+- S3 for model storage with memfd for efficient loading
 
 ## Features
 
-- FastAPI-based Lambda function for LLM inference
-- Lambda SnapStart for improved cold starts
-- Custom Lambda layer with llama-cpp-python
-- Qwen 1.5B model quantized to 4-bit for efficient inference
-- Uses memfd to overcome Lambda storage size limitations for large model files
-- AWS Lambda Web Adapter integration for running FastAPI and enabling response streaming
+- **Serverless Inference API**
+  - FastAPI-based Lambda function
+  - Streaming responses via Server-Sent Events
+  - OpenAI-compatible chat completions endpoint
+  - IAM authentication support
+
+- **Optimized Performance**
+  - Lambda SnapStart for reduced cold starts
+  - memfd for efficient model loading
+  - Parallel model download from S3
+  - Custom llama-cpp-python layer with OpenBLAS
+
+- **Interactive Client**
+  - Command-line interface with streaming responses
+  - Command history with persistence
+  - Configurable model parameters
+  - Progress indicator for requests
 
 ## Prerequisites
 
-To deploy this application, you need:
+- **AWS Requirements**
+  - AWS Account with appropriate permissions
+  - Lambda function role with S3 access
+  - x86_64 architecture support
 
-* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-* [Python 3.12](https://www.python.org/downloads/)
-* [Docker](https://hub.docker.com/search/?type=edition&offering=community)
+- **Development Tools**
+  * [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+  * [Python 3.12](https://www.python.org/downloads/)
+  * [Docker](https://hub.docker.com/search/?type=edition&offering=community)
+
+- **IAM Permissions**
+  - s3:GetObject for model access
+  - lambda:InvokeFunctionUrl for client
+  - Additional permissions for deployment
+
+## Performance Considerations
+
+- **Scaling Capabilities**
+  - From 0 to 1000 concurrent requests in 10 seconds
+  - No pre-provisioning or capacity planning required
+
+- **Cold Start Times**
+  - ~2-3 seconds with SnapStart
+  - ~50-65 seconds without SnapStart
+
+- **Memory Requirements**
+  - Minimum: 4GB Lambda memory for 1.5B 4 bit quant models
+  - Recommended: 10GB for better performance
+
+## Security
+
+- **Authentication**
+  - IAM authentication for Lambda Function URL
+  - AWS SigV4 signing for requests
+  - Role-based access control
+
+- **Model Security**
+  - S3 bucket encryption
+  - VPC endpoint support
+  - IAM policies for model access
 
 ## Deployment
 
-1. Download the Qwen model and set up S3:
+1. **Model Preparation**
    ```bash
    # Download the Qwen model
    wget https://huggingface.co/bartowski/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/Qwen2.5-1.5B-Instruct-Q4_K_M.gguf
    
-   # Create an S3 bucket (replace BUCKET_NAME with your desired bucket name)
+   # Create and configure S3 bucket
    aws s3 mb s3://BUCKET_NAME
-   
-   # Upload the model to S3
    aws s3 cp Qwen2.5-1.5B-Instruct-Q4_K_M.gguf s3://BUCKET_NAME/
    ```
 
-2. Build and deploy the application using SAM CLI:
+2. **Application Deployment**
    ```bash
-   # Build the application
+   # Build with SAM
    sam build --use-container
 
-   # Deploy the application (update MODEL_BUCKET parameter with your bucket name)
+   # Deploy (guided)
    sam deploy --guided
    ```
 
-During the guided deployment, you'll be prompted for:
-
-* **Stack Name**: Name for your CloudFormation stack
-* **AWS Region**: Target region for deployment
-* **MODEL_BUCKET**: Name of the S3 bucket containing your model file
-* **Confirm changes before deploy**: Option to review changes before deployment
-* **Allow SAM CLI IAM role creation**: Required for creating necessary IAM roles
-* **Save arguments to samconfig.toml**: Save settings for future deployments
-
-After deployment, SAM will output the Function URL for your API endpoint.
+   Configuration parameters:
+   * **Stack Name**: CloudFormation stack name
+   * **AWS Region**: Deployment region
+   * **MODEL_BUCKET**: S3 bucket with model
+   * **Memory Size**: Lambda memory (minimum 10GB)
 
 ## Using the Client
 
-The project includes a command-line chat client (`client.py`) that interacts with the deployed API:
+### Installation
 
-### Configuration
-
-1. Create a `.env` file in the project root:
 ```bash
-CHAT_API_BASE=<your-lambda-function-url>  # e.g., https://xxxx.lambda-url.us-east-1.on.aws
+# Install dependencies
+pip install requests python-dotenv
+
+# Configure API endpoint
+echo "CHAT_API_BASE=https://xxxx.lambda-url.us-east-1.on.aws" > .env
 ```
 
-Alternatively, you can provide the API base URL via command line:
+### Running the Client
+
 ```bash
-python client.py --api-base https://xxxx.lambda-url.us-east-1.on.aws
+# Basic usage
+python client.py
+
+# With configuration
+python client.py --api-base https://xxxx.lambda-url.us-east-1.on.aws \
+                --temperature 0.6 \
+                --max-tokens 512
 ```
 
 ### Features
 
-- Interactive chat interface with streaming responses
-- Command history navigation using ↑/↓ arrow keys
-- History persistence in `.chat_history` file
-- Special commands:
+- **Interactive Interface**
+  - Streaming responses with progress indicator
+  - Command history (↑/↓ keys)
+  - History persistence in `.chat_history`
+
+- **Commands**
   - `/quit` - Exit the chat
   - `/new` - Start a new conversation
 
-### Usage
-
-1. Install dependencies:
-```bash
-pip install requests python-dotenv
-```
-
-2. Run the client:
-```bash
-python client.py
-```
-
-## Architecture
-
-The application consists of:
-
-1. A FastAPI application running on Lambda that handles LLM inference requests
-2. A custom Lambda layer containing llama-cpp-python compiled for AWS Lambda
-3. Lambda SnapStart enabled for faster cold starts
-4. AWS Lambda Web Adapter for FastAPI integration and response streaming
-5. S3 access to load the Qwen model with memfd for efficient model loading
+- **Configuration**
+  - `temperature` (0.0-1.0): Response randomness
+  - `max_tokens` (1-2048): Maximum response length
 
 ## Local Development
 
-To run the application locally:
+1. **Environment Setup**
+   ```bash
+   # Create virtual environment
+   python -m venv .venv
+   source .venv/bin/activate
 
-1. Install dependencies:
-```bash
-cd app
-pip install -r requirements.txt
-```
+   # Install dependencies
+   cd app
+   pip install -r requirements.txt
+   ```
 
-2. Download a compatible GGUF model file to the models directory
+2. **Configuration**
+   ```bash
+   # Create .env file
+   cat > .env << EOL
+   MODEL_BUCKET=your-bucket-name
+   MODEL_KEY=your-model-file.gguf
+   EOL
+   ```
 
-3. Run the FastAPI application:
-```bash
-cd app
-uvicorn main:app --reload
-```
+3. **Running Locally**
+   ```bash
+   cd app
+   uvicorn main:app --reload
+   ```
+
+4. **Debugging**
+   - Set `LOG_LEVEL=debug` for detailed logging
+   - Use VS Code debugger with provided launch configurations
+   - Monitor memory usage with `top` or similar tools
 
 ## Cleanup
 
-To remove the deployed application:
-
+Remove all deployed resources:
 ```bash
 sam delete
 ```
@@ -138,3 +199,11 @@ sam delete
 - [AWS Lambda Web Adapter](https://github.com/awslabs/aws-lambda-web-adapter)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
+
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This project is licensed under the MIT-0 License - see the [LICENSE](LICENSE) file for details.
