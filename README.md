@@ -73,7 +73,6 @@ The application consists of:
 
 - **Model Security**
   - S3 bucket encryption
-  - VPC endpoint support
   - IAM policies for model access
 
 ## Deployment
