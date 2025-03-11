@@ -1,6 +1,6 @@
-# Serverless LLM Demo
+# Serverless DeepSeek R1 Inference with FastAPI and Lambda SnapStart
 
-This project demonstrates how to build a serverless LLM inference API using AWS Lambda with SnapStart, FastAPI, and llama-cpp-python. It provides a production-ready template for deploying large language models in a serverless environment.
+This project demonstrates how to build a serverless LLM inference API for DeepSeek R1 using AWS Lambda with SnapStart, FastAPI, and llama-cpp-python. It provides a template for deploying DeepSeek R1 Distiled model and other large language models in a serverless environment.
 
 ## Architecture
 
