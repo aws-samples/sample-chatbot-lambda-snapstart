@@ -4,17 +4,7 @@ This project demonstrates how to build a serverless LLM inference API using AWS 
 
 ## Architecture
 
-```
-┌─────────┐     ┌───────────────┐     ┌─────────┐
-│  Client │────▶│ Lambda        │────▶│   S3    │
-└─────────┘     │ Function URL  │     └─────────┘
-                │  - FastAPI    │          ▲
-                │  - SnapStart  │          │
-                │  - llama-cpp  │          │
-                └───────────────┘          │
-                       │                   │
-                       └───────────────────┘
-```
+TBA
 
 The application consists of:
 - FastAPI application running on Lambda for inference requests
@@ -111,7 +101,6 @@ The application consists of:
    * **Stack Name**: CloudFormation stack name
    * **AWS Region**: Deployment region
    * **MODEL_BUCKET**: S3 bucket with model
-   * **Memory Size**: Lambda memory (minimum 10GB)
 
 ## Using the Client
 
