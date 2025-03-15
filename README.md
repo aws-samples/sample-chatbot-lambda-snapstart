@@ -100,6 +100,7 @@ The application consists of:
    * **Stack Name**: CloudFormation stack name
    * **AWS Region**: Deployment region
    * **MODEL_BUCKET**: S3 bucket with model
+   * **MODEL_KEY**: S3 key for the model file (default: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf)
 
 ## Using the Client
 
