@@ -7,6 +7,10 @@ Parameters:
   ModelBucket:
     Type: String
     Description: S3 bucket containing the model files
+  ModelKey:
+    Type: String
+    Default: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
+    Description: S3 key for the model file
 
 Resources:
   LlamaCppLayer:
@@ -42,7 +46,7 @@ Resources:
       Environment:
         Variables:
           MODEL_BUCKET: !Ref ModelBucket
-          MODEL_KEY: DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf
+          MODEL_KEY: !Ref ModelKey
           AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
           AWS_LWA_INVOKE_MODE: RESPONSE_STREAM
           AWS_LWA_READINESS_CHECK_PATH: /healthz
