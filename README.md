@@ -10,7 +10,7 @@ The application consists of:
 - FastAPI application running on Lambda for inference requests
 - Custom Lambda layer with llama-cpp-python (x86_64)
 - Lambda SnapStart for faster cold starts
-- AWS Lambda Web Adapter for streaming responses
+- [AWS Lambda Web Adapter](https://github.com/awslabs/aws-lambda-web-adapter) for streaming responses
 - S3 for model storage with memfd for efficient loading
 
 ## Features
