@@ -53,7 +53,7 @@ The application consists of:
 ## Performance Considerations
 
 - **Scaling Capabilities**
-  - From 0 to 1000 concurrent requests in 10 seconds
+  - Scale from 0 to 1000 concurrent requests in 10 seconds
   - No pre-provisioning or capacity planning required
 
 - **Cold Start Times**
@@ -69,7 +69,6 @@ The application consists of:
 - **Authentication**
   - IAM authentication for Lambda Function URL
   - AWS SigV4 signing for requests
-  - Role-based access control
 
 - **Model Security**
   - S3 bucket encryption
@@ -90,7 +89,7 @@ The application consists of:
 2. **Application Deployment**
    ```bash
    # Build with SAM
-   sam build --use-container
+   sam build
 
    # Deploy (guided)
    sam deploy --guided
