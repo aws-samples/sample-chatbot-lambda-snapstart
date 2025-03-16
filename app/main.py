@@ -164,8 +164,8 @@ def init_model():
             n_threads=multiprocessing.cpu_count(),  # Use all available CPU cores
             flash_attn=True,       # -fa: Enable flash attention
             verbose=True,
-            cache_type_k="q8_0",   # --cache-type-k q8_0: KV cache type for keys
-            cache_type_v="f16",    # --cache-type-v f16: KV cache type for values
+            type_k=llama_cpp.GGML_TYPE_Q8_0,   # --type-k q8_0: KV cache type for keys
+            type_v=llama_cpp.GGML_TYPE_F16,    # --type-v f16: KV cache type for values
         )
         logger.info("LLM initialization complete")
         
@@ -257,7 +257,9 @@ async def handle_chat_completion(request: ChatCompletionRequest):
         f"<|{msg.role}|>{msg.content}"
         for msg in request.messages
     ]
-    prompt_parts.append("<|Assistant|>\n<think>\n")  # Add the assistant prefix for the response, and force thinking with '<think>' tag
+    
+    # Add the assistant prefix for the response, and force thinking with '<think>' tag
+    prompt_parts.append("<|Assistant|>\n<think>\n")
     prompt = "".join(prompt_parts)
     
     # Generate completion with streaming enabled
