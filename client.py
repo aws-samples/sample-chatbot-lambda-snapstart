@@ -210,6 +210,7 @@ class ChatClient:
                                     # Stop thinking animation only when first content chunk arrives
                                     if first_chunk:
                                         self.thinking.stop()
+                                        print("<think>", flush=True)
                                         first_chunk = False
                                         
                                     print(content, end='', flush=True)

@@ -158,10 +158,14 @@ def init_model():
         logger.info("Initializing LLM...")
         llm = llama_cpp.Llama(
             model_path=fd_path,
-            n_ctx=8*1024,  # 8K context window
+            n_ctx=32768,           # -c 32768: Context window size
+            n_batch=2048,          # -b 2048: Batch size
+            n_ubatch=512,          # -ub 512: Update batch size
             n_threads=multiprocessing.cpu_count(),  # Use all available CPU cores
-            flash_attn=True,  # Enable flash attention for better performance
+            flash_attn=True,       # -fa: Enable flash attention
             verbose=True,
+            cache_type_k="q8_0",   # --cache-type-k q8_0: KV cache type for keys
+            cache_type_v="f16",    # --cache-type-v f16: KV cache type for values
         )
         logger.info("LLM initialization complete")
         
@@ -214,12 +218,18 @@ class ChatCompletionRequest(BaseModel):
         messages (list[Message]): The conversation history
         max_tokens (int): Maximum number of tokens to generate
         temperature (float): Sampling temperature (0.0 to 1.0)
+        top_k (int): Top-k sampling parameter
+        top_p (float): Top-p sampling parameter
+        repeat_penalty (float): Penalty for repeated tokens
         stream (bool): Whether to stream the response
     """
     model: Optional[str] = os.environ['MODEL_KEY']
     messages: list[Message]
     max_tokens: Optional[int] = 1024
-    temperature: Optional[float] = 0.6
+    temperature: Optional[float] = 0.7
+    top_k: Optional[int] = 40
+    top_p: Optional[float] = 0.9
+    repeat_penalty: Optional[float] = 1.1
     stream: bool = True  # Always true, streaming only
 
 @app.post("/v1/chat/completions")
@@ -255,6 +265,9 @@ async def handle_chat_completion(request: ChatCompletionRequest):
         prompt=prompt,
         max_tokens=request.max_tokens,
         temperature=request.temperature,
+        top_k=request.top_k,
+        top_p=request.top_p,
+        repeat_penalty=request.repeat_penalty,
         # Stop generation when these strings are encountered
         stop=["<|user|>","<|assistant|>","<|User|>","<|Assistant|>", "</|assistant>"],
         stream=True
