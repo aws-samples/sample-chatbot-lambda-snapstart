@@ -99,7 +99,12 @@ def download_model_to_memfd(bucket, key, chunk_size=100*1024*1024):  # 100MB chu
     fd = create_memfd()
     
     # Pre-allocate the full file size
-    os.ftruncate(fd, file_size)
+    try:
+        os.ftruncate(fd, file_size)
+    except OSError as e:
+        logger.error(f"Failed to allocate {file_size/1024/1024:.2f}MB in memory: {e}")
+        cleanup_fd(fd)
+        raise RuntimeError(f"Not enough memory to load model of size {file_size/1024/1024:.2f}MB")
     
     # Calculate parts for parallel download
     parts = []
